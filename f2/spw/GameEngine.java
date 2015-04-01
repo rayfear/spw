@@ -5,8 +5,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.*;
 
 import javax.swing.Timer;
 
@@ -16,19 +15,19 @@ public class GameEngine implements KeyListener, GameReporter{
 		
 	private ArrayList<Bullet> bullets = new ArrayList<Bullet>();	
 	private ArrayList<Enemy> enemies = new ArrayList<Enemy>();	
-	private SpaceShip v;	
-	
+	private boolean controll[] = {false,false,false,false,false};	
+	private SpaceShip v;
 	private Timer timer;
-	
+	private Timer shiptimer;	
 	private long score = 0;
-	private double difficulty = 0.1;
+	private double difficulty = 0.05;
 	
 	public GameEngine(GamePanel gp, SpaceShip v) {
 		this.gp = gp;
 		this.v = v;		
 		
 		gp.sprites.add(v);
-		//30
+
 		timer = new Timer(50, new ActionListener() {
 			
 			@Override
@@ -36,12 +35,22 @@ public class GameEngine implements KeyListener, GameReporter{
 				process();
 			}
 		});
+
+		shiptimer = new Timer(5, new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				shipprocess();
+			}
+		});
 		timer.setRepeats(true);
+		shiptimer.setRepeats(true);
 		
 	}
 	
 	public void start(){
 		timer.start();
+		shiptimer.start();
 	}
 	
 	private void generateEnemy(){
@@ -51,9 +60,22 @@ public class GameEngine implements KeyListener, GameReporter{
 	}
 	
 	private void generateBullet(){
-		Bullet s = new Bullet(v.x,v.y);
+		Bullet s = new Bullet(v.getCenterx(),v.getCentery());
 		gp.sprites.add(s);
 		bullets.add(s);
+	}
+
+	private void shipprocess(){
+		if(controll[0])
+			v.move(-1,'x');
+		if(controll[1])
+			v.move(1,'x');
+		if(controll[2])
+			v.move(-1,'y');
+		if(controll[3])
+			v.move(1,'y');
+		if(controll[4])
+			generateBullet();
 	}
 
 	private void process(){
@@ -104,36 +126,56 @@ public class GameEngine implements KeyListener, GameReporter{
 				if(er.intersects(br)){
 						e.setAlive(false);
 						b.setAlive(false);
-						score += 100;
 			    }
 			}
 		}
 	}
 	
+	
+
 	public void die(){
 		timer.stop();
 	}
-
 	
 	void controlVehicle(KeyEvent e) {
 		switch (e.getKeyCode()) {
 		case KeyEvent.VK_LEFT:
-			v.move(-1,'x');//90
+			controll[0] = true;
 			break;
 		case KeyEvent.VK_RIGHT:
-			v.move(1,'x');
+			controll[1] = true;
 			break;
 		case KeyEvent.VK_UP:
-			v.move(-1,'y');
+			controll[2] = true;
 			break;
 		case KeyEvent.VK_DOWN:
-			v.move(1,'y');
+			controll[3] = true;
 			break;
 		case KeyEvent.VK_D:
 			difficulty += 0.1;
 			break;
 		case KeyEvent.VK_SPACE:
-			generateBullet();
+			controll[4] = true;
+			break;
+		}
+	}
+
+	void controlVehiclea(KeyEvent e) {
+		switch (e.getKeyCode()) {
+		case KeyEvent.VK_LEFT:
+			controll[0] = false;
+			break;
+		case KeyEvent.VK_RIGHT:
+			controll[1] = false;
+			break;
+		case KeyEvent.VK_UP:
+			controll[2] = false;
+			break;
+		case KeyEvent.VK_DOWN:
+			controll[3] = false;
+			break;
+		case KeyEvent.VK_SPACE:
+			controll[4] = false;
 			break;
 		}
 	}
@@ -150,7 +192,8 @@ public class GameEngine implements KeyListener, GameReporter{
 
 	@Override
 	public void keyReleased(KeyEvent e) {
-		//do nothing
+		controlVehiclea(e);
+
 	}
 
 	@Override
