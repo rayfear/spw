@@ -37,4 +37,24 @@ public class GamePanel extends JPanel {
 		Graphics2D g2d = (Graphics2D) g;
 		g2d.drawImage(bi, null, 0, 0);
 	}
+
+	public void updateGameUIRestart(GameReporter reporter){
+		big.clearRect(0, 0, 400, 600);
+		
+		big.setColor(Color.WHITE);		
+		big.drawString(String.format("%08d", reporter.getScore()), 300, 20);
+		for(Sprite s : sprites){
+			s.draw(big);
+		}
+
+		big.setFont(big.getFont().deriveFont(20F));
+		big.setColor(Color.WHITE);		
+		big.drawString(String.format("press R to restart"), 110, 280);
+		for(Sprite s : sprites){
+			s.draw(big);
+		}
+		big.setFont(big.getFont().deriveFont(12F));
+		repaint();
+	}
+
 }

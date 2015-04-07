@@ -15,7 +15,7 @@ public class GameEngine implements KeyListener, GameReporter{
 		
 	private ArrayList<Bullet> bullets = new ArrayList<Bullet>();	
 	private ArrayList<Enemy> enemies = new ArrayList<Enemy>();	
-	private boolean controll[] = {false,false,false,false,false};	
+	private boolean controll[] = {false,false,false,false,false,false};	
 	private SpaceShip v;
 	private Timer timer;
 	private Timer shiptimer;	
@@ -76,6 +76,10 @@ public class GameEngine implements KeyListener, GameReporter{
 			v.move(1,'y');
 		if(controll[4])
 			generateBullet();
+		if(!timer.isRunning() && controll[5]){
+				clear();
+				timer.start();
+		}
 	}
 
 	private void process(){
@@ -131,10 +135,30 @@ public class GameEngine implements KeyListener, GameReporter{
 		}
 	}
 	
-	
+	public void clear(){
+		Rectangle2D.Double br;
+		Rectangle2D.Double er;
+		Iterator<Enemy> e_iter = enemies.iterator();
+		Iterator<Bullet> b_iter = bullets.iterator();
+		while(b_iter.hasNext()){
+			Bullet b = b_iter.next();
+			b_iter.remove();
+			br = b.getRectangle();
+			gp.sprites.remove(b);
+		}
+		while(e_iter.hasNext()){
+			Enemy e = e_iter.next();
+			e_iter.remove();
+			er = e.getRectangle();
+			gp.sprites.remove(e);
+		}
+		score = 0;
+		v.resetPosition();
+	}
 
 	public void die(){
 		timer.stop();
+		gp.updateGameUIRestart(this);
 	}
 	
 	void controlVehicle(KeyEvent e) {
@@ -157,6 +181,9 @@ public class GameEngine implements KeyListener, GameReporter{
 		case KeyEvent.VK_SPACE:
 			controll[4] = true;
 			break;
+		case KeyEvent.VK_R:
+			controll[5] = true;
+			break;
 		}
 	}
 
@@ -176,6 +203,9 @@ public class GameEngine implements KeyListener, GameReporter{
 			break;
 		case KeyEvent.VK_SPACE:
 			controll[4] = false;
+			break;
+		case KeyEvent.VK_R:
+			controll[5] = false;
 			break;
 		}
 	}
