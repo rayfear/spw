@@ -1,6 +1,6 @@
 # spw
 F2 Assignment
 
-version 0.3.0
-edit GameEngine.java add method clear
-edit GamePanal.java add method updateGameUIRestart
+version 0.4.0
+GamePanel.java add method titleScreen
+GameEngine.java add method title

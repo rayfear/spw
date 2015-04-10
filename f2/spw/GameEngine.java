@@ -15,12 +15,15 @@ public class GameEngine implements KeyListener, GameReporter{
 		
 	private ArrayList<Bullet> bullets = new ArrayList<Bullet>();	
 	private ArrayList<Enemy> enemies = new ArrayList<Enemy>();	
-	private boolean controll[] = {false,false,false,false,false,false};	
+	private boolean controll[] = {false,false,false,false,false,false};
+	private boolean titleStatus = true;
+	private int cursor = 0;
 	private SpaceShip v;
 	private Timer timer;
-	private Timer shiptimer;	
+	private Timer shiptimer;
 	private long score = 0;
 	private double difficulty = 0.05;
+	private int ms = 0;
 	
 	public GameEngine(GamePanel gp, SpaceShip v) {
 		this.gp = gp;
@@ -28,19 +31,22 @@ public class GameEngine implements KeyListener, GameReporter{
 		
 		gp.sprites.add(v);
 
-		timer = new Timer(50, new ActionListener() {
+		timer = new Timer(1, new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				process();
+				ms++;
+				if((ms % 25) == 0 && !titleStatus)
+					process();
 			}
 		});
-
 		shiptimer = new Timer(5, new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				shipprocess();
+				if(titleStatus)
+					title();
+				else shipprocess();
 			}
 		});
 		timer.setRepeats(true);
@@ -66,13 +72,13 @@ public class GameEngine implements KeyListener, GameReporter{
 	}
 
 	private void shipprocess(){
-		if(controll[0])
+		if(controll[0] && !controll[3])
 			v.move(-1,'x');
 		if(controll[1])
 			v.move(1,'x');
 		if(controll[2])
 			v.move(-1,'y');
-		if(controll[3])
+		if(controll[3] && !controll[0])
 			v.move(1,'y');
 		if(controll[4])
 			generateBullet();
@@ -161,19 +167,43 @@ public class GameEngine implements KeyListener, GameReporter{
 		gp.updateGameUIRestart(this);
 	}
 	
+	public void title(){
+		gp.titleScreen(cursor);
+	}
+
+	public void updateCursor(int i){
+		switch(i){
+			case 1:
+				cursor -= 1;
+				break;
+			case -1:
+				cursor += 1;
+			    break;
+		}
+		if(cursor > 3)
+			cursor = 3;
+		else if(cursor < 0)
+			cursor = 0;
+	}
+	
 	void controlVehicle(KeyEvent e) {
 		switch (e.getKeyCode()) {
 		case KeyEvent.VK_LEFT:
+
 			controll[0] = true;
 			break;
 		case KeyEvent.VK_RIGHT:
 			controll[1] = true;
 			break;
 		case KeyEvent.VK_UP:
-			controll[2] = true;
+			if(!titleStatus)
+				controll[2] = true;
+			else updateCursor(1);
 			break;
 		case KeyEvent.VK_DOWN:
-			controll[3] = true;
+			if(!titleStatus)
+				controll[3] = true;
+			else updateCursor(-1);
 			break;
 		case KeyEvent.VK_D:
 			difficulty += 0.1;
@@ -183,6 +213,9 @@ public class GameEngine implements KeyListener, GameReporter{
 			break;
 		case KeyEvent.VK_R:
 			controll[5] = true;
+			break;
+		case KeyEvent.VK_ENTER:
+			titleStatus = false;
 			break;
 		}
 	}
