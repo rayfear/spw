@@ -70,6 +70,25 @@ public class GamePanel extends JPanel {
 		repaint();
 	}
 
+		public void updateGameUIPause(GameReporter reporter){
+		big.clearRect(0, 0, 400, 600);
+		
+		big.setColor(Color.WHITE);		
+		big.drawString(String.format("%08d", reporter.getScore()), 300, 20);
+		for(Sprite s : sprites){
+			s.draw(big);
+		}
+		
+		big.setFont(big.getFont().deriveFont(20F));
+		big.setColor(Color.WHITE);		
+		big.drawString(String.format("Pause"), 170, 280);
+		for(Sprite s : sprites){
+			s.draw(big);
+		}
+		big.setFont(big.getFont().deriveFont(12F));
+		repaint();
+	}
+
 	@Override
 	public void paint(Graphics g) {
 		Graphics2D g2d = (Graphics2D) g;

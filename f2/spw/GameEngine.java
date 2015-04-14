@@ -24,6 +24,7 @@ public class GameEngine implements KeyListener, GameReporter{
 	private long score = 0;
 	private double difficulty = 0.05;
 	private int ms = 0;
+	private boolean pauseStatus = false;
 	
 	public GameEngine(GamePanel gp, SpaceShip v) {
 		this.gp = gp;
@@ -36,8 +37,10 @@ public class GameEngine implements KeyListener, GameReporter{
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				ms++;
-				if((ms % 25) == 0 && !titleStatus)
+				if((ms % 25) == 0 && !titleStatus && cursor == 0)
 					process();
+				else if(!titleStatus && cursor == 2)
+					System.exit(0);
 			}
 		});
 		shiptimer = new Timer(5, new ActionListener() {
@@ -72,20 +75,30 @@ public class GameEngine implements KeyListener, GameReporter{
 	}
 
 	private void shipprocess(){
-		if(controll[0] && !controll[3])
-			v.move(-1,'x');
-		if(controll[1])
-			v.move(1,'x');
-		if(controll[2])
-			v.move(-1,'y');
-		if(controll[3] && !controll[0])
-			v.move(1,'y');
-		if(controll[4])
-			generateBullet();
+		if(timer.isRunning()){
+			if(controll[0])
+				v.move(-1,'x');
+			if(controll[1])
+				v.move(1,'x');
+			if(controll[2])
+				v.move(-1,'y');
+			if(controll[3])
+				v.move(1,'y');
+			if(controll[4])
+				generateBullet();
+		}
 		if(!timer.isRunning() && controll[5]){
 				clear();
 				timer.start();
 		}
+		pause();
+	}
+	private void pause(){
+		if(pauseStatus == true){
+			gp.updateGameUIPause(this);
+			timer.stop();
+		}
+		else timer.start();
 	}
 
 	private void process(){
@@ -180,8 +193,8 @@ public class GameEngine implements KeyListener, GameReporter{
 				cursor += 1;
 			    break;
 		}
-		if(cursor > 3)
-			cursor = 3;
+		if(cursor > 2)
+			cursor = 2;
 		else if(cursor < 0)
 			cursor = 0;
 	}
@@ -216,6 +229,9 @@ public class GameEngine implements KeyListener, GameReporter{
 			break;
 		case KeyEvent.VK_ENTER:
 			titleStatus = false;
+			break;
+		case KeyEvent.VK_P:
+			pauseStatus = !pauseStatus;
 			break;
 		}
 	}
