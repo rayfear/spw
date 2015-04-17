@@ -12,21 +12,24 @@ import javax.swing.Timer;
 
 public class GameEngine implements KeyListener, GameReporter{
 	GamePanel gp;
-		
 	private ArrayList<Bullet> bullets = new ArrayList<Bullet>();	
 	private ArrayList<Enemy> enemies = new ArrayList<Enemy>();	
+	private ArrayList<EnemySpaceShip> enemiespaceships = new ArrayList<EnemySpaceShip>();
 	private boolean controll[] = {false,false,false,false,false,false};
 	private boolean titleStatus = true;
 	private int cursor = 0;
-	private SpaceShip v;
+	private PlayerSpaceShip v;
 	private Timer timer;
 	private Timer shiptimer;
 	private long score = 0;
 	private double difficulty = 0.05;
 	private int ms = 0;
 	private boolean pauseStatus = false;
+	private int random = 0;
+	private boolean die = false;
+	private boolean readyTofire = false;
 	
-	public GameEngine(GamePanel gp, SpaceShip v) {
+	public GameEngine(GamePanel gp, PlayerSpaceShip v) {
 		this.gp = gp;
 		this.v = v;		
 		
@@ -37,10 +40,14 @@ public class GameEngine implements KeyListener, GameReporter{
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				ms++;
-				if((ms % 25) == 0 && !titleStatus && cursor == 0)
+				if((ms % 25) == 0 && !titleStatus && cursor == 0){
 					process();
+				}
 				else if(!titleStatus && cursor == 2)
 					System.exit(0);
+				if(ms % 30 == 0) readyTofire = true;
+				else readyTofire = false;
+				//else if(!titleStatus && cursor == 1)
 			}
 		});
 		shiptimer = new Timer(5, new ActionListener() {
@@ -62,8 +69,14 @@ public class GameEngine implements KeyListener, GameReporter{
 		shiptimer.start();
 	}
 	
-	private void generateEnemy(){
-		Enemy e = new Enemy((int)(Math.random()*390), 30);
+	private void generateEnemySpaceship(){
+		EnemySpaceShip es = new EnemySpaceShip((int)(Math.random()*385), 30);
+		gp.sprites.add(es);
+		enemiespaceships.add(es);
+	}
+
+	private void generateEnemy(int x , int y){
+		Enemy e = new Enemy(x,y);
 		gp.sprites.add(e);
 		enemies.add(e);
 	}
@@ -84,7 +97,7 @@ public class GameEngine implements KeyListener, GameReporter{
 				v.move(-1,'y');
 			if(controll[3])
 				v.move(1,'y');
-			if(controll[4])
+			if(controll[4] && readyTofire)
 				generateBullet();
 		}
 		if(!timer.isRunning() && controll[5]){
@@ -98,12 +111,16 @@ public class GameEngine implements KeyListener, GameReporter{
 			gp.updateGameUIPause(this);
 			timer.stop();
 		}
-		else timer.start();
+		else if(die != true)timer.start();
 	}
 
 	private void process(){
 		if(Math.random() < difficulty){
-			generateEnemy();
+			generateEnemySpaceship();
+		}
+		for(EnemySpaceShip es : enemiespaceships){
+			if(es.getShoot())
+				generateEnemy(es.getCenterx(),es.getCentery());
 		}
 		
 		Iterator<Enemy> e_iter = enemies.iterator();
@@ -114,6 +131,18 @@ public class GameEngine implements KeyListener, GameReporter{
 			if(!e.isAlive()){
 				e_iter.remove();
 				gp.sprites.remove(e);
+				score += 1;
+			}
+		}
+
+		Iterator<EnemySpaceShip> es_iter = enemiespaceships.iterator();
+		while(es_iter.hasNext()){
+			EnemySpaceShip es = es_iter.next();
+			es.proceed();
+
+			if(!es.isAlive()){
+				es_iter.remove();
+				gp.sprites.remove(es);
 				score += 100;
 			}
 		}
@@ -133,6 +162,7 @@ public class GameEngine implements KeyListener, GameReporter{
 		
 		Rectangle2D.Double vr = v.getRectangle();
 		Rectangle2D.Double er;
+		Rectangle2D.Double esr;
 		for(Enemy e : enemies){
 			er = e.getRectangle();
 			if(er.intersects(vr)){
@@ -141,13 +171,21 @@ public class GameEngine implements KeyListener, GameReporter{
 				return;
 			}
 		}
+		for(EnemySpaceShip es : enemiespaceships){
+			esr = es.getRectangle();
+			if(esr.intersects(vr)){
+				die();
+
+				return;
+			}
+		}
 		Rectangle2D.Double br;
 		for(Bullet b : bullets){
 			br = b.getRectangle();
-			for(Enemy e : enemies){
-				er = e.getRectangle();
-				if(er.intersects(br)){
-						e.setAlive(false);
+			for(EnemySpaceShip es : enemiespaceships){
+				esr = es.getRectangle();
+				if(esr.intersects(br)){
+						es.setAlive(false);
 						b.setAlive(false);
 			    }
 			}
@@ -157,8 +195,10 @@ public class GameEngine implements KeyListener, GameReporter{
 	public void clear(){
 		Rectangle2D.Double br;
 		Rectangle2D.Double er;
+		Rectangle2D.Double esr;
 		Iterator<Enemy> e_iter = enemies.iterator();
 		Iterator<Bullet> b_iter = bullets.iterator();
+		Iterator<EnemySpaceShip> es_iter = enemiespaceships.iterator();
 		while(b_iter.hasNext()){
 			Bullet b = b_iter.next();
 			b_iter.remove();
@@ -171,11 +211,18 @@ public class GameEngine implements KeyListener, GameReporter{
 			er = e.getRectangle();
 			gp.sprites.remove(e);
 		}
+		while(es_iter.hasNext()){
+			EnemySpaceShip es = es_iter.next();
+			es_iter.remove();
+			esr = es.getRectangle();
+			gp.sprites.remove(es);
+		}
 		score = 0;
 		v.resetPosition();
 	}
 
 	public void die(){
+		die = true;
 		timer.stop();
 		gp.updateGameUIRestart(this);
 	}

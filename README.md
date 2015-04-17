@@ -1,6 +1,10 @@
 # spw
 F2 Assignment
 
-version 0.4.1
-GamePanel.java add method gameupdateUIPause
-GameEngine.java add method pause titleScreen can exit
+version 0.4.2
+GameEngine.java add add about EnemySpaceShip.java
+change SpaceShip.java
+add EnemySpaceShip.java
+add PlayerSpaceShip.java
+
+bug know(not died) and fix
