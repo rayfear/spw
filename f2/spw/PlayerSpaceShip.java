@@ -9,15 +9,9 @@ public class PlayerSpaceShip extends SpaceShip{
 	int step = 1;
 
 	public PlayerSpaceShip(int x, int y, int width, int height) {
-		super(x, y, width, height);
+		super(x, y, width, height, 5, 5);
 		centerx = x + (width/2) - 1;
 		centery = y + (height/2) - 10;
-	}
-
-	public PlayerSpaceShip() {
-		super(0, 0, 0, 0);
-		centerx = x + (width/2);
-		centery = y + (height/2);
 	}
 	
 	public void changeCenter(int x,int y){
@@ -48,6 +42,7 @@ public class PlayerSpaceShip extends SpaceShip{
 		centery = y + (height/2) - 10;
 	}
 
+	@Override
 	public void move(int direction,char axis){
 		if(axis == 'x'){
 			x += (step * direction);

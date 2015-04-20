@@ -60,9 +60,9 @@ public class GamePanel extends JPanel {
 
 	public void updateGameUI(GameReporter reporter){
 		big.clearRect(0, 0, 400, 600);
-		
+		big.setFont(big.getFont().deriveFont(12F));
 		big.setColor(Color.WHITE);		
-		big.drawString(String.format("%08d", reporter.getScore()), 300, 20);
+		drawStatus(reporter);
 		for(Sprite s : sprites){
 			s.draw(big);
 		}
@@ -70,11 +70,11 @@ public class GamePanel extends JPanel {
 		repaint();
 	}
 
-		public void updateGameUIPause(GameReporter reporter){
+	public void updateGameUIPause(GameReporter reporter){
 		big.clearRect(0, 0, 400, 600);
 		
 		big.setColor(Color.WHITE);		
-		big.drawString(String.format("%08d", reporter.getScore()), 300, 20);
+		drawStatus(reporter);
 		for(Sprite s : sprites){
 			s.draw(big);
 		}
@@ -99,7 +99,7 @@ public class GamePanel extends JPanel {
 		big.clearRect(0, 0, 400, 600);
 		
 		big.setColor(Color.WHITE);		
-		big.drawString(String.format("%08d", reporter.getScore()), 300, 20);
+		drawStatus(reporter);
 		for(Sprite s : sprites){
 			s.draw(big);
 		}
@@ -112,6 +112,15 @@ public class GamePanel extends JPanel {
 		}
 		big.setFont(big.getFont().deriveFont(12F));
 		repaint();
+	}
+
+	public void drawStatus(GameReporter reporter){
+		big.drawString(String.format("%08d", reporter.getScore()), 300, 20);
+		big.drawString(String.format("%04d", reporter.getKill()), 260, 20);
+		big.drawString(String.format("%04d", reporter.getHp()), 10, 20);
+		big.drawString(String.format("/%04d", reporter.getHpMax()), 40, 20);
+		big.drawString(String.format("/%04d", reporter.getMaxEnemy()), 130, 20);
+		big.drawString(String.format("%04d", reporter.getEnemy()), 100, 20);
 	}
 
 }

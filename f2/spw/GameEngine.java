@@ -28,6 +28,9 @@ public class GameEngine implements KeyListener, GameReporter{
 	private int random = 0;
 	private boolean die = false;
 	private boolean readyTofire = false;
+	private int maxEnemy = 7;
+	private int Enemy = 0;
+	private int kill = 0;
 	
 	public GameEngine(GamePanel gp, PlayerSpaceShip v) {
 		this.gp = gp;
@@ -70,6 +73,7 @@ public class GameEngine implements KeyListener, GameReporter{
 	}
 	
 	private void generateEnemySpaceship(){
+		Enemy++;
 		EnemySpaceShip es = new EnemySpaceShip((int)(Math.random()*385), 30);
 		gp.sprites.add(es);
 		enemiespaceships.add(es);
@@ -115,8 +119,16 @@ public class GameEngine implements KeyListener, GameReporter{
 	}
 
 	private void process(){
+		if(score % 1000 == 0 && score != 0){
+			maxEnemy += 2;
+		}
+		if(score % 5000 == 0 && score != 0)
+			maxEnemy += 3;
+		if(score % 20000 == 0 && score != 0)
+			maxEnemy += 2;
 		if(Math.random() < difficulty){
-			generateEnemySpaceship();
+			if(Enemy < maxEnemy)
+				generateEnemySpaceship();
 		}
 		for(EnemySpaceShip es : enemiespaceships){
 			if(es.getShoot())
@@ -131,7 +143,6 @@ public class GameEngine implements KeyListener, GameReporter{
 			if(!e.isAlive()){
 				e_iter.remove();
 				gp.sprites.remove(e);
-				score += 1;
 			}
 		}
 
@@ -139,10 +150,18 @@ public class GameEngine implements KeyListener, GameReporter{
 		while(es_iter.hasNext()){
 			EnemySpaceShip es = es_iter.next();
 			es.proceed();
+			if(es.getWarp()){
+				es.setWarp();
+				maxEnemy++;
+			}
 
 			if(!es.isAlive()){
+				Enemy--;
 				es_iter.remove();
 				gp.sprites.remove(es);
+				kill++;
+				if(kill % 40 == 0 && kill != 0) v.increaseMaxHp();
+				if(kill % 20 == 0 && kill != 0) v.setHp(v.hp + 1);
 				score += 100;
 			}
 		}
@@ -166,7 +185,12 @@ public class GameEngine implements KeyListener, GameReporter{
 		for(Enemy e : enemies){
 			er = e.getRectangle();
 			if(er.intersects(vr)){
-				die();
+				v.reduceHp();
+				v.checkHp();
+				e.setAlive(false);
+				if(!v.isAlive())
+					die();
+
 
 				return;
 			}
@@ -174,7 +198,7 @@ public class GameEngine implements KeyListener, GameReporter{
 		for(EnemySpaceShip es : enemiespaceships){
 			esr = es.getRectangle();
 			if(esr.intersects(vr)){
-				die();
+				v.reduceHp();
 
 				return;
 			}
@@ -185,7 +209,10 @@ public class GameEngine implements KeyListener, GameReporter{
 			for(EnemySpaceShip es : enemiespaceships){
 				esr = es.getRectangle();
 				if(esr.intersects(br)){
-						es.setAlive(false);
+						es.reduceHp();
+						es.checkHp();
+						if(!es.isAlive())
+
 						b.setAlive(false);
 			    }
 			}
@@ -219,6 +246,10 @@ public class GameEngine implements KeyListener, GameReporter{
 		}
 		score = 0;
 		v.resetPosition();
+		maxEnemy = 7;
+		Enemy = 0;
+		v.setFullHp();
+		kill = 0;
 	}
 
 	public void die(){
@@ -308,6 +339,26 @@ public class GameEngine implements KeyListener, GameReporter{
 
 	public long getScore(){
 		return score;
+	}
+
+	public int getKill(){
+		return kill;
+	}
+
+	public int getHp(){
+		return v.hp;
+	}
+
+	public int getHpMax(){
+		return v.hpMax;
+	}
+
+	public int getEnemy(){
+		return Enemy;
+	}
+
+	public int getMaxEnemy(){
+		return maxEnemy;
 	}
 	
 	@Override
