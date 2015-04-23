@@ -118,7 +118,7 @@ public class GamePanel extends JPanel {
 		big.drawString(String.format("%08d", reporter.getScore()), 300, 20);
 		big.drawString(String.format("%04d", reporter.getKill()), 260, 20);
 		big.drawString(String.format("%04d", reporter.getHp()), 10, 20);
-		big.drawString(String.format("/%04d", reporter.getHpMax()), 40, 20);
+		big.drawString(String.format("/%04d", reporter.getMaxHp()), 40, 20);
 		big.drawString(String.format("/%04d", reporter.getMaxEnemy()), 130, 20);
 		big.drawString(String.format("%04d", reporter.getEnemy()), 100, 20);
 	}

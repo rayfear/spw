@@ -15,22 +15,23 @@ public class GameEngine implements KeyListener, GameReporter{
 	private ArrayList<Bullet> bullets = new ArrayList<Bullet>();	
 	private ArrayList<Enemy> enemies = new ArrayList<Enemy>();	
 	private ArrayList<EnemySpaceShip> enemiespaceships = new ArrayList<EnemySpaceShip>();
-	private boolean controll[] = {false,false,false,false,false,false};
+	private ArrayList<Boss> bossS = new ArrayList<Boss>();
+	private boolean controll[] = {false,false,false,false,false};
 	private boolean titleStatus = true;
 	private int cursor = 0;
 	private PlayerSpaceShip v;
 	private Timer timer;
-	private Timer shiptimer;
 	private long score = 0;
 	private double difficulty = 0.05;
-	private int ms = 0;
+	private int ms10 = 0;
 	private boolean pauseStatus = false;
 	private int random = 0;
-	private boolean die = false;
 	private boolean readyTofire = false;
 	private int maxEnemy = 7;
 	private int Enemy = 0;
 	private int kill = 0;
+	private boolean limitMaxEnemy = true;
+	private boolean die = false;
 	
 	public GameEngine(GamePanel gp, PlayerSpaceShip v) {
 		this.gp = gp;
@@ -38,38 +39,30 @@ public class GameEngine implements KeyListener, GameReporter{
 		
 		gp.sprites.add(v);
 
-		timer = new Timer(1, new ActionListener() {
+		timer = new Timer(10, new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				ms++;
-				if((ms % 25) == 0 && !titleStatus && cursor == 0){
+				ms10++;
+				if(titleStatus)
+					title();
+				else shipprocess();
+				if((ms10 % 5) == 0 && !titleStatus && cursor == 0){
 					process();
 				}
 				else if(!titleStatus && cursor == 2)
 					System.exit(0);
-				if(ms % 30 == 0) readyTofire = true;
+				if(ms10 % 20 == 0) readyTofire = true;
 				else readyTofire = false;
 				//else if(!titleStatus && cursor == 1)
 			}
 		});
-		shiptimer = new Timer(5, new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				if(titleStatus)
-					title();
-				else shipprocess();
-			}
-		});
 		timer.setRepeats(true);
-		shiptimer.setRepeats(true);
 		
 	}
 	
 	public void start(){
 		timer.start();
-		shiptimer.start();
 	}
 	
 	private void generateEnemySpaceship(){
@@ -84,9 +77,21 @@ public class GameEngine implements KeyListener, GameReporter{
 		gp.sprites.add(e);
 		enemies.add(e);
 	}
+
+	private void generateBoss(int x, int y){
+		Boss boss = new Boss(x,y);
+		gp.sprites.add(boss);
+	}
+
+	private void generateBossLaser(int x, int y, int x2, int y2){
+		BossLaser bosslaser1 = new BossLaser(x,y);
+		BossLaser bosslaser2 = new BossLaser(x2,y2);
+		gp.sprites.add(bosslaser1);
+		gp.sprites.add(bosslaser2);
+	}
 	
 	private void generateBullet(){
-		Bullet s = new Bullet(v.getCenterx(),v.getCentery());
+		Bullet s = new Bullet(v.getCenterx(),v.getCentery(), 3, 7);
 		gp.sprites.add(s);
 		bullets.add(s);
 	}
@@ -104,10 +109,6 @@ public class GameEngine implements KeyListener, GameReporter{
 			if(controll[4] && readyTofire)
 				generateBullet();
 		}
-		if(!timer.isRunning() && controll[5]){
-				clear();
-				timer.start();
-		}
 		pause();
 	}
 	private void pause(){
@@ -119,13 +120,18 @@ public class GameEngine implements KeyListener, GameReporter{
 	}
 
 	private void process(){
-		if(score % 1000 == 0 && score != 0){
-			maxEnemy += 2;
+		if(score % 200000 == 0 && score != 0 && !limitMaxEnemy){
+			maxEnemy += 7;
+			limitMaxEnemy = true;
 		}
-		if(score % 5000 == 0 && score != 0)
-			maxEnemy += 3;
-		if(score % 20000 == 0 && score != 0)
+		else if(score % 80000 == 0 && score != 0 && !limitMaxEnemy){
+			maxEnemy += 5;
+			limitMaxEnemy = true;
+		}
+		else if(score % 5000 == 0 && score != 0 && !limitMaxEnemy){
 			maxEnemy += 2;
+			limitMaxEnemy = true;
+		}
 		if(Math.random() < difficulty){
 			if(Enemy < maxEnemy)
 				generateEnemySpaceship();
@@ -134,7 +140,28 @@ public class GameEngine implements KeyListener, GameReporter{
 			if(es.getShoot())
 				generateEnemy(es.getCenterx(),es.getCentery());
 		}
-		
+
+		for(Boss bossa: bossS){
+			if(bossa.getShoot())
+				generateBossLaser(bossa.getCenterx2(),bossa.getCentery2(),bossa.getCenterx3(),bossa.getCentery3());
+		}
+
+		/*
+		if(ms10 % 6000 == 0 || kill == 10)
+			generateBoss(180,30);
+
+		Iterator<Boss> boss_iter = bossS.iterator();
+			while(boss_iter.hasNext()){
+				Boss boss = boss_iter.next();
+				boss.proceed();
+
+				if(check(boss)){
+					boss_iter.remove();
+					gp.sprites.remove(boss);
+			}
+		}
+		*/
+
 		Iterator<Enemy> e_iter = enemies.iterator();
 		while(e_iter.hasNext()){
 			Enemy e = e_iter.next();
@@ -155,11 +182,12 @@ public class GameEngine implements KeyListener, GameReporter{
 				maxEnemy++;
 			}
 
-			if(!es.isAlive()){
+			if(check(es)){
 				Enemy--;
 				es_iter.remove();
 				gp.sprites.remove(es);
 				kill++;
+				limitMaxEnemy = false;
 				if(kill % 40 == 0 && kill != 0) v.increaseMaxHp();
 				if(kill % 20 == 0 && kill != 0) v.setHp(v.hp + 1);
 				score += 100;
@@ -186,21 +214,19 @@ public class GameEngine implements KeyListener, GameReporter{
 			er = e.getRectangle();
 			if(er.intersects(vr)){
 				v.reduceHp();
-				v.checkHp();
 				e.setAlive(false);
-				if(!v.isAlive())
+				if(check(v))
 					die();
-
-
-				return;
 			}
 		}
 		for(EnemySpaceShip es : enemiespaceships){
 			esr = es.getRectangle();
 			if(esr.intersects(vr)){
 				v.reduceHp();
+				es.reduceHp();
+				if(check(v))
+					die();
 
-				return;
 			}
 		}
 		Rectangle2D.Double br;
@@ -210,9 +236,6 @@ public class GameEngine implements KeyListener, GameReporter{
 				esr = es.getRectangle();
 				if(esr.intersects(br)){
 						es.reduceHp();
-						es.checkHp();
-						if(!es.isAlive())
-
 						b.setAlive(false);
 			    }
 			}
@@ -220,6 +243,7 @@ public class GameEngine implements KeyListener, GameReporter{
 	}
 	
 	public void clear(){
+		die = false;
 		Rectangle2D.Double br;
 		Rectangle2D.Double er;
 		Rectangle2D.Double esr;
@@ -248,6 +272,7 @@ public class GameEngine implements KeyListener, GameReporter{
 		v.resetPosition();
 		maxEnemy = 7;
 		Enemy = 0;
+		v.setMaxHp(5);
 		v.setFullHp();
 		kill = 0;
 	}
@@ -272,9 +297,9 @@ public class GameEngine implements KeyListener, GameReporter{
 			    break;
 		}
 		if(cursor > 2)
-			cursor = 2;
-		else if(cursor < 0)
 			cursor = 0;
+		else if(cursor < 0)
+			cursor = 2;
 	}
 	
 	void controlVehicle(KeyEvent e) {
@@ -303,14 +328,20 @@ public class GameEngine implements KeyListener, GameReporter{
 			controll[4] = true;
 			break;
 		case KeyEvent.VK_R:
-			controll[5] = true;
+			if(!timer.isRunning()){
+				clear();
+				timer.start();
+			}
 			break;
 		case KeyEvent.VK_ENTER:
 			titleStatus = false;
 			break;
 		case KeyEvent.VK_P:
-			pauseStatus = !pauseStatus;
-			break;
+			 pauseStatus = !pauseStatus;
+			 break;
+		case KeyEvent.VK_B:
+			 die();
+			 break;
 		}
 	}
 
@@ -331,9 +362,6 @@ public class GameEngine implements KeyListener, GameReporter{
 		case KeyEvent.VK_SPACE:
 			controll[4] = false;
 			break;
-		case KeyEvent.VK_R:
-			controll[5] = false;
-			break;
 		}
 	}
 
@@ -349,8 +377,8 @@ public class GameEngine implements KeyListener, GameReporter{
 		return v.hp;
 	}
 
-	public int getHpMax(){
-		return v.hpMax;
+	public int getMaxHp(){
+		return v.maxHp;
 	}
 
 	public int getEnemy(){
@@ -360,7 +388,12 @@ public class GameEngine implements KeyListener, GameReporter{
 	public int getMaxEnemy(){
 		return maxEnemy;
 	}
-	
+
+	public boolean check(SpaceShip spaceship){
+		if(spaceship.getHp() <= 0) return true;
+		return false;
+	}
+
 	@Override
 	public void keyPressed(KeyEvent e) {
 		controlVehicle(e);

@@ -5,7 +5,7 @@ public interface GameReporter {
 	long getScore();
 	int getKill();
 	int getHp();
-	int getHpMax();
+	int getMaxHp();
 	int getEnemy();
 	int getMaxEnemy();
 }

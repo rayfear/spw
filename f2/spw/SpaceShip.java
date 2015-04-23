@@ -7,16 +7,15 @@ public abstract class SpaceShip extends Sprite{
 	protected int centerx;
 	protected int centery;
 	protected int hp = 0;
-	protected int hpMax = 0;
-	protected boolean alive = true;
+	protected int maxHp = 0;
 
 
-	public SpaceShip(int x, int y, int width, int height, int hp, int hpMax) {
+	public SpaceShip(int x, int y, int width, int height, int hp, int maxHp) {
 		super(x, y, width, height);
 		centerx = x + (width/2) - 1;
 		centery = y + (height/2) - 10;
 		this.hp = hp;
-		this.hpMax = hpMax;
+		this.maxHp = maxHp;
 	}
 	
 	public void changeCenter(int x,int y){
@@ -32,10 +31,6 @@ public abstract class SpaceShip extends Sprite{
 		return centery;
 	}
 
-	public boolean isAlive(){
-		return alive;
-	}
-
 	@Override
 	public abstract void draw(Graphics2D g);
 
@@ -45,21 +40,20 @@ public abstract class SpaceShip extends Sprite{
 
 	public void setHp(int hp){
 		this.hp = hp;
+		if(hp > maxHp)
+			hp = maxHp;
+	}
+
+	public void setMaxHp(int maxHp){
+		this.maxHp = maxHp;
 	}
 
 	public void setFullHp(){
-		hp = hpMax;
+		hp = maxHp;
 	}
 
 	public void increaseMaxHp(){
-		hpMax++;
-	}
-
-	public void checkHp(){
-		if(hp > hpMax)
-			hp = hpMax;
-		if(hp <= 0)
-			alive = false;
+		maxHp++;
 	}
 
 	public void reduceHp(){

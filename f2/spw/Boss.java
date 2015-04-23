@@ -19,7 +19,7 @@ public class Boss extends SpaceShip{
 	private int centery3;
 	
 	public Boss(int x, int y) {
-		super(x, y, 15, 15, 500, 500);
+		super(x, y, 100, 30, 500, 500);
 		centerx2 = getCenterx() + 30;
 		centery2 = centery3 = getCentery();
 		centerx3 = getCenterx() - 30;
@@ -27,7 +27,7 @@ public class Boss extends SpaceShip{
 
 	@Override
 	public void draw(Graphics2D g) {
-		g.setColor(Color.RED);
+		g.setColor(Color.BLUE);
 		g.fillRect(x, y, width, height);
 		
 	}
@@ -86,4 +86,19 @@ public class Boss extends SpaceShip{
 		return shoot;
 	}
 
+	public int getCenterx2(){
+		return centerx2;
+	}
+
+	public int getCenterx3(){
+		return centerx3;
+	}
+
+	public int getCentery2(){
+		return centery2;
+	}
+
+	public int getCentery3(){
+		return centery3;
+	}
 }

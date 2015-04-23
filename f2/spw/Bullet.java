@@ -7,11 +7,11 @@ import java.awt.Graphics2D;
 public class Bullet extends Sprite{
 	public static final int Y_TO_DIE = 0;
 	
-	private int step = 8;
-	private boolean alive = true;
+	private int step = 10;
+	protected boolean alive = true;
 	
-	public Bullet(int x, int y) {
-		super(x, y, 3, 7);
+	public Bullet(int x, int y, int width, int h) {
+		super(x, y, width, h);
 		
 	}
 
