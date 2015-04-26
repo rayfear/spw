@@ -8,9 +8,10 @@ import java.util.Random;
 public class Boss extends SpaceShip{
 	private Random random = new Random();
 	private int fire = 95;
+	private int fire2 = 40;
 	private boolean shoot = false;
 	
-	private int step = 3;
+	private int step = 2;
 	private boolean alive = true;
 	private int num = 0;
 	private int centerx2;
@@ -19,10 +20,10 @@ public class Boss extends SpaceShip{
 	private int centery3;
 	
 	public Boss(int x, int y) {
-		super(x, y, 100, 30, 500, 500);
-		centerx2 = getCenterx() + 30;
+		super(x, y, 200, 100, 100, 100);
+		centerx2 = getCenterx() + 70;
 		centery2 = centery3 = getCentery();
-		centerx3 = getCenterx() - 30;
+		centerx3 = getCenterx() - 70;
 	}
 
 	@Override
@@ -35,6 +36,7 @@ public class Boss extends SpaceShip{
 	public void proceed(){
 		int i = 0;
 		int ran = random.nextInt(100);
+		int ran2 = random.nextInt(100);
 		if(num == 0){
 			if(ran >= 50){
 				move(1,'x');
@@ -45,12 +47,12 @@ public class Boss extends SpaceShip{
 				num = 1;
 			}
 		}
-		if(num == 1){
-			if(x > 385)
+		if(num != 0){
+			if(num == 1)
 				move(-1,'x');
-			else move(1,'x');
+			else if(num == 2) move(1,'x');
 		}
-		if( ran > fire) shoot = true;
+		if( ran > fire && ran2 > fire2) shoot = true;
 		else shoot = false;
 	}
     
@@ -61,12 +63,15 @@ public class Boss extends SpaceShip{
 			changeCenter(step* direction,0);
 			if(x < 0){
 				x = 0;
+				num = 2;
 				changeCenter(-step* direction,0);
 			}
 			if(x > 385 - width){
 				x = 385 - width;
-			changeCenter(-step* direction,0);
+				num = 1;
+				changeCenter(-step* direction,0);
 			}
+			changeAllCenter();
 		}
 		else{
 			y += (step * direction);
@@ -79,6 +84,7 @@ public class Boss extends SpaceShip{
 				y = 0;
 			changeCenter(0,-step* direction);
 			}
+			changeAllCenter();
 		}
 	}
 
@@ -100,5 +106,10 @@ public class Boss extends SpaceShip{
 
 	public int getCentery3(){
 		return centery3;
+	}
+
+	public void changeAllCenter(){
+		centerx2 = getCenterx() + 70;
+		centerx3 = getCenterx() - 70;
 	}
 }

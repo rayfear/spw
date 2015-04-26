@@ -16,13 +16,17 @@ public class GameEngine implements KeyListener, GameReporter{
 	private ArrayList<Enemy> enemies = new ArrayList<Enemy>();	
 	private ArrayList<EnemySpaceShip> enemiespaceships = new ArrayList<EnemySpaceShip>();
 	private ArrayList<Boss> bossS = new ArrayList<Boss>();
+	private ArrayList<BossLaser> bosslaser = new ArrayList<BossLaser>();
+	private RedLine redline1;
+	private RedLine redline2;
+	private RedLine redline3;
 	private boolean controll[] = {false,false,false,false,false};
 	private boolean titleStatus = true;
 	private int cursor = 0;
 	private PlayerSpaceShip v;
 	private Timer timer;
 	private long score = 0;
-	private double difficulty = 0.05;
+	private double difficulty = 0.07;
 	private int ms10 = 0;
 	private boolean pauseStatus = false;
 	private int random = 0;
@@ -43,6 +47,7 @@ public class GameEngine implements KeyListener, GameReporter{
 			
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
+				if(ms10 == 6000) ms10 = 0;
 				ms10++;
 				if(titleStatus)
 					title();
@@ -81,13 +86,26 @@ public class GameEngine implements KeyListener, GameReporter{
 	private void generateBoss(int x, int y){
 		Boss boss = new Boss(x,y);
 		gp.sprites.add(boss);
+		bossS.add(boss);
+		redline1 = new RedLine(boss.getCenterx(),boss.getCentery(),1);
+		redline2 = new RedLine(boss.getCenterx2(),boss.getCentery2(),2);
+		redline3 = new RedLine(boss.getCenterx3(),boss.getCentery3(),3);
+		gp.sprites.add(redline1);
+		gp.sprites.add(redline2);
+		gp.sprites.add(redline3);
+		difficulty = 0.02;
 	}
 
-	private void generateBossLaser(int x, int y, int x2, int y2){
-		BossLaser bosslaser1 = new BossLaser(x,y);
-		BossLaser bosslaser2 = new BossLaser(x2,y2);
+	private void generateBossLaser(int x1, int y1, int x2, int y2, int x3, int y3){
+		BossLaser bosslaser1 = new BossLaser(x1,y1,10,1000,1);
+		BossLaser bosslaser2 = new BossLaser(x2,y2,10,1000,2);
+		BossLaser bosslaser3 = new BossLaser(x3,y3,10,1000,3);
 		gp.sprites.add(bosslaser1);
 		gp.sprites.add(bosslaser2);
+		gp.sprites.add(bosslaser3);
+		bosslaser.add(bosslaser1);
+		bosslaser.add(bosslaser2);
+		bosslaser.add(bosslaser3);
 	}
 	
 	private void generateBullet(){
@@ -143,26 +161,54 @@ public class GameEngine implements KeyListener, GameReporter{
 
 		for(Boss bossa: bossS){
 			if(bossa.getShoot())
-				generateBossLaser(bossa.getCenterx2(),bossa.getCentery2(),bossa.getCenterx3(),bossa.getCentery3());
+				generateBossLaser(bossa.getCenterx(),bossa.getCentery(), bossa.getCenterx2(), bossa.getCentery2(), bossa.getCenterx3(), bossa.getCentery3());
 		}
 
-		/*
-		if(ms10 % 6000 == 0 || kill == 10)
-			generateBoss(180,30);
+		
+		if(ms10 % 6000 == 0 && ms10 != 0)
+			generateBoss(100,50);
 
 		Iterator<Boss> boss_iter = bossS.iterator();
-			while(boss_iter.hasNext()){
-				Boss boss = boss_iter.next();
-				boss.proceed();
+		Iterator<BossLaser> bosslaser_iter = bosslaser.iterator();
+		Iterator<Enemy> e_iter = enemies.iterator();
+		Iterator<EnemySpaceShip> es_iter = enemiespaceships.iterator();
+		Iterator<Bullet> b_iter = bullets.iterator();
 
-				if(check(boss)){
-					boss_iter.remove();
-					gp.sprites.remove(boss);
+		while(boss_iter.hasNext()){
+			Boss boss = boss_iter.next();
+			boss.proceed();
+			redline1.proceed(boss.getCenterx());
+			redline2.proceed(boss.getCenterx2());
+			redline3.proceed(boss.getCenterx3());
+
+			if(check(boss)){
+				boss_iter.remove();
+				gp.sprites.remove(boss);
+				gp.sprites.remove(redline1);
+				gp.sprites.remove(redline2);
+				gp.sprites.remove(redline3);
+				maxEnemy -= 5;
+				difficulty = 0.07;
+			}
+
+			while(bosslaser_iter.hasNext()){
+				BossLaser blaser = bosslaser_iter.next();
+				switch(blaser.getFromCenter()){
+					case 1:blaser.proceed(boss.getCenterx());
+						   break;
+					case 2:blaser.proceed(boss.getCenterx2());
+						   break;
+					case 3:blaser.proceed(boss.getCenterx3());
+						   break;
+				}
+
+				if(!blaser.isAlive()){
+					bosslaser_iter.remove();
+					gp.sprites.remove(blaser);
+				}
 			}
 		}
-		*/
 
-		Iterator<Enemy> e_iter = enemies.iterator();
 		while(e_iter.hasNext()){
 			Enemy e = e_iter.next();
 			e.proceed();
@@ -173,7 +219,6 @@ public class GameEngine implements KeyListener, GameReporter{
 			}
 		}
 
-		Iterator<EnemySpaceShip> es_iter = enemiespaceships.iterator();
 		while(es_iter.hasNext()){
 			EnemySpaceShip es = es_iter.next();
 			es.proceed();
@@ -194,7 +239,6 @@ public class GameEngine implements KeyListener, GameReporter{
 			}
 		}
 		
-		Iterator<Bullet> b_iter = bullets.iterator();
 		while(b_iter.hasNext()){
 			Bullet b = b_iter.next();
 			b.proceed();
@@ -210,11 +254,22 @@ public class GameEngine implements KeyListener, GameReporter{
 		Rectangle2D.Double vr = v.getRectangle();
 		Rectangle2D.Double er;
 		Rectangle2D.Double esr;
+		Rectangle2D.Double br;
+		Rectangle2D.Double bossSr;
+		Rectangle2D.Double blaserSr;
 		for(Enemy e : enemies){
 			er = e.getRectangle();
 			if(er.intersects(vr)){
 				v.reduceHp();
 				e.setAlive(false);
+				if(check(v))
+					die();
+			}
+		}
+		for(BossLaser oneblaser : bosslaser){
+			blaserSr = oneblaser.getRectangle();
+			if(blaserSr.intersects(vr)){
+				v.reduceHp();
 				if(check(v))
 					die();
 			}
@@ -226,10 +281,8 @@ public class GameEngine implements KeyListener, GameReporter{
 				es.reduceHp();
 				if(check(v))
 					die();
-
 			}
 		}
-		Rectangle2D.Double br;
 		for(Bullet b : bullets){
 			br = b.getRectangle();
 			for(EnemySpaceShip es : enemiespaceships){
@@ -239,17 +292,29 @@ public class GameEngine implements KeyListener, GameReporter{
 						b.setAlive(false);
 			    }
 			}
+			for(Boss bosses : bossS){
+				bossSr = bosses.getRectangle();
+				if(bossSr.intersects(br)){
+						bosses.reduceHp();
+						b.setAlive(false);
+			    }
+			}
 		}
 	}
 	
 	public void clear(){
+		difficulty = 0.07;
 		die = false;
 		Rectangle2D.Double br;
 		Rectangle2D.Double er;
 		Rectangle2D.Double esr;
+		Rectangle2D.Double bossSr;
+		Rectangle2D.Double blaserSr;
 		Iterator<Enemy> e_iter = enemies.iterator();
 		Iterator<Bullet> b_iter = bullets.iterator();
 		Iterator<EnemySpaceShip> es_iter = enemiespaceships.iterator();
+		Iterator<Boss> boss_iter = bossS.iterator();
+		Iterator<BossLaser> bosslaser_iter = bosslaser.iterator();
 		while(b_iter.hasNext()){
 			Bullet b = b_iter.next();
 			b_iter.remove();
@@ -267,6 +332,21 @@ public class GameEngine implements KeyListener, GameReporter{
 			es_iter.remove();
 			esr = es.getRectangle();
 			gp.sprites.remove(es);
+		}
+		while(bosslaser_iter.hasNext()){
+			BossLaser oneblaser = bosslaser_iter.next();
+			bosslaser_iter.remove();
+			blaserSr = oneblaser.getRectangle();
+			gp.sprites.remove(oneblaser);
+		}
+		while(boss_iter.hasNext()){
+			Boss boss = boss_iter.next();
+			boss_iter.remove();
+			bossSr = boss.getRectangle();
+			gp.sprites.remove(boss);
+			gp.sprites.remove(redline1);
+			gp.sprites.remove(redline2);
+			gp.sprites.remove(redline3);
 		}
 		score = 0;
 		v.resetPosition();
@@ -340,7 +420,7 @@ public class GameEngine implements KeyListener, GameReporter{
 			 pauseStatus = !pauseStatus;
 			 break;
 		case KeyEvent.VK_B:
-			 die();
+			 generateBoss(100,50);
 			 break;
 		}
 	}

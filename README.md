@@ -1,9 +1,8 @@
 # spw
 F2 Assignment
 
-version 0.5.1
-GameEngine.java remove shiptimer
+version 0.6.0
+edit GameEngine.java about boss
 
-bug fix MaxEnemy 
-bug fix after restart hp reduce 1 and die
+boss complete
 

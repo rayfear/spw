@@ -5,19 +5,33 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 
 public class BossLaser extends Bullet{
+	public static final int Time_TO_DIE = 20;
+	public static final int Y_TO_DIE = -800;
+	private int time = 0;
+	protected int step = 0;
+	protected int fromCenter = 0;
 	
-	public static final int Y_TO_DIE = 800;
-	private int step = 20;
-	
-	public BossLaser(int x, int y) {
-		super(x, y, 7, 200);
-		
+	public BossLaser(int x, int y, int width, int height, int center) {
+		super(x, y, width, height);
+		fromCenter = center;
 	}
 
 	@Override
 	public void draw(Graphics2D g) {
 		g.setColor(Color.BLUE);
 		g.fillRect(x, y, width, height);
-		
+	}
+
+	public void proceed(int x){
+		y += step;
+		this.x = x;
+		time++;
+		if(time > Time_TO_DIE){
+			alive = false;
+		}
+	}
+
+	public int getFromCenter(){
+		return fromCenter;
 	}
 }
