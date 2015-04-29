@@ -5,7 +5,6 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 
 public class BossLaser extends Bullet{
-	public static final int Time_TO_DIE = 20;
 	public static final int Y_TO_DIE = -800;
 	private int time = 0;
 	protected int step = 0;
@@ -25,13 +24,25 @@ public class BossLaser extends Bullet{
 	public void proceed(int x){
 		y += step;
 		this.x = x;
-		time++;
-		if(time > Time_TO_DIE){
+		widthChange();
+		if(width <= 0){
 			alive = false;
 		}
 	}
 
 	public int getFromCenter(){
 		return fromCenter;
+	}
+
+	public void widthChange(){
+		if(width < 10 && time < 10){
+			width += 2;
+			time++;
+		}
+		else if(time < 26)
+			time++;
+		else if (time == 26){
+			 width--;	
+		}
 	}
 }

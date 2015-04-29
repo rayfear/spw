@@ -8,4 +8,6 @@ public interface GameReporter {
 	int getMaxHp();
 	int getEnemy();
 	int getMaxEnemy();
+	int getBossHp();
+	int getBossLv();
 }

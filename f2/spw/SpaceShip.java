@@ -12,7 +12,7 @@ public abstract class SpaceShip extends Sprite{
 
 	public SpaceShip(int x, int y, int width, int height, int hp, int maxHp) {
 		super(x, y, width, height);
-		centerx = x + (width/2) - 1;
+		centerx = x + (width/2);
 		centery = y + (height/2) - 10;
 		this.hp = hp;
 		this.maxHp = maxHp;
@@ -40,24 +40,32 @@ public abstract class SpaceShip extends Sprite{
 
 	public void setHp(int hp){
 		this.hp = hp;
-		if(hp > maxHp)
-			hp = maxHp;
+		if(hp >= maxHp)
+			setFullHp();
 	}
 
 	public void setMaxHp(int maxHp){
 		this.maxHp = maxHp;
 	}
 
+	public int getMaxHp(){
+		return maxHp;
+	}
+
 	public void setFullHp(){
 		hp = maxHp;
 	}
 
-	public void increaseMaxHp(){
-		maxHp++;
+	public void increaseMaxHp(int num){
+		maxHp += num;
 	}
 
 	public void reduceHp(){
 		hp--;
+	}
+
+	public void reduceHp(int num){
+		hp -= num;
 	}
 	
 	public abstract void move(int direction,char axis);

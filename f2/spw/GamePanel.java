@@ -58,6 +58,44 @@ public class GamePanel extends JPanel {
 		repaint();
 	}
 
+	public void difficultScreen(int cursor2){
+		big.clearRect(0, 0, 400, 600);
+		big.setColor(Color.WHITE);	
+		if(cursor2 == 0){
+			big.setFont(big.getFont().deriveFont(28F));
+			big.drawString("Space war",140,100);
+			big.setFont(big.getFont().deriveFont(18F));
+			big.drawString("Easy",170,200);
+			big.setFont(big.getFont().deriveFont(14F));
+			big.drawString("Normal",165,270);
+			big.drawString("Hard",170,340);
+		}
+		else if(cursor2 == 1){
+			big.setFont(big.getFont().deriveFont(28F));
+			big.drawString("Space war",140,100);
+			big.setFont(big.getFont().deriveFont(14F));
+			big.drawString("Easy",170,200);
+			big.setFont(big.getFont().deriveFont(18F));
+			big.drawString("Normal",165,270);
+			big.setFont(big.getFont().deriveFont(14F));
+			big.drawString("Hard",170,340);
+		}
+		else{
+			big.setFont(big.getFont().deriveFont(28F));
+			big.drawString("Space war",140,100);
+			big.setFont(big.getFont().deriveFont(14F));
+			big.drawString("Easy",170,200);
+			big.drawString("Normal",170,270);
+			big.setFont(big.getFont().deriveFont(18F));
+			big.drawString("Hard",170,340);
+		}
+		for(Sprite s : sprites){
+			s.draw(big);
+		}
+		
+		repaint();
+	}
+
 	public void updateGameUI(GameReporter reporter){
 		big.clearRect(0, 0, 400, 600);
 		big.setFont(big.getFont().deriveFont(12F));
@@ -115,12 +153,14 @@ public class GamePanel extends JPanel {
 	}
 
 	public void drawStatus(GameReporter reporter){
-		big.drawString(String.format("%08d", reporter.getScore()), 300, 20);
-		big.drawString(String.format("%04d", reporter.getKill()), 260, 20);
-		big.drawString(String.format("%04d", reporter.getHp()), 10, 20);
-		big.drawString(String.format("/%04d", reporter.getMaxHp()), 40, 20);
-		big.drawString(String.format("/%04d", reporter.getMaxEnemy()), 130, 20);
-		big.drawString(String.format("%04d", reporter.getEnemy()), 100, 20);
+		big.drawString(String.format("Score=%08d", reporter.getScore()), 285, 20);
+		big.drawString(String.format("kill=%04d", reporter.getKill()), 220, 20);
+		big.drawString(String.format("HP=%04d", reporter.getHp()), 10, 20);
+		big.drawString(String.format("/%04d", reporter.getMaxHp()), 62, 20);
+		big.drawString(String.format("/%04d", reporter.getMaxEnemy()), 173, 20);
+		big.drawString(String.format("Enemy=%04d", reporter.getEnemy()), 100, 20);
+		big.drawString(String.format("BossHp=%03d", reporter.getBossHp()), 10, 30);
+		big.drawString(String.format("BossLv=%01d", reporter.getBossLv()), 100, 30);
 	}
 
 }

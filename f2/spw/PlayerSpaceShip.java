@@ -9,7 +9,7 @@ public class PlayerSpaceShip extends SpaceShip{
 	int step = 1;
 
 	public PlayerSpaceShip(int x, int y, int width, int height) {
-		super(x, y, width, height, 5, 5);
+		super(x, y, width, height, 50, 50);
 		centerx = x + (width/2) - 1;
 		centery = y + (height/2) - 10;
 	}

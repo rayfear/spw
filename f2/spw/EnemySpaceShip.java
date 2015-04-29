@@ -15,8 +15,8 @@ public class EnemySpaceShip extends SpaceShip{
 	private int num = 0;
 	private boolean warp = false;
 	
-	public EnemySpaceShip(int x, int y) {
-		super(x, y, 15, 15, 3, 3);
+	public EnemySpaceShip(int x, int y,int hp,int maxHp) {
+		super(x, y, 15, 15, hp, maxHp);
 	}
 
 	@Override
