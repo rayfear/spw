@@ -6,6 +6,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.geom.Rectangle2D;
 import java.util.*;
+import java.io.*;
 
 import javax.swing.Timer;
 
@@ -73,15 +74,14 @@ public class GameEngine implements KeyListener, GameReporter{
 				if((ms10 % 5) == 0 && !titleStatus && !difficultStatus){
 					process();
 				}
+				//else if(!titleStatus && cursor == 1) load();
 				else if(!titleStatus && cursor == 2)
 					System.exit(0);
 				if(ms10 % 20 == 0) readyTofire = true;
 				else readyTofire = false;
-				//else if(!titleStatus && cursor == 1)
 			}
 		});
 		timer.setRepeats(true);
-		
 	}
 	
 	public void start(){
@@ -106,26 +106,26 @@ public class GameEngine implements KeyListener, GameReporter{
 
 	private void generateBoss(){
 		Boss boss;
-		if(gameMode == 1) boss = new Boss( 100, 50 , 500 , 500 , 90);
-		else if(gameMode == 2) boss = new Boss( 100, 50 , 600 , 600 , 85);
-		else boss = new Boss( 100, 50, 700 , 700 , 80);
+		if(gameMode == 1) boss = new Boss( 100, 50 , 500 , 500 , 88);
+		else if(gameMode == 2) boss = new Boss( 100, 50 , 600 , 600 , 83);
+		else boss = new Boss( 100, 50, 700 , 700 , 78);
 		gp.sprites.add(boss);
 		bossS.add(boss);
 		if(gameMode == 1)
 			difficulty = 0;
 		if(gameMode == 2)
-			difficulty = 0.01;
+			difficulty = 0.005;
 		if(gameMode == 3)
-			difficulty = 0.02;
+			difficulty = 0.01;
 		hasBoss = true;
 		bossHp = boss.getHp();
 		bossLv = boss.getLv();
 	}
 
 	private void generateBossLaser(int x1, int y1, int x2, int x3){
-		BossLaser bosslaser1 = new BossLaser(x1,y1,1,1000,1);
-		BossLaser bosslaser2 = new BossLaser(x2,y1,1,1000,2);
-		BossLaser bosslaser3 = new BossLaser(x3,y1,1,1000,3);
+		BossLaser bosslaser1 = new BossLaser(x1,y1,1,500,1);
+		BossLaser bosslaser2 = new BossLaser(x2,y1,1,500,2);
+		BossLaser bosslaser3 = new BossLaser(x3,y1,1,500,3);
 		gp.sprites.add(bosslaser1);
 		gp.sprites.add(bosslaser2);
 		gp.sprites.add(bosslaser3);
@@ -136,8 +136,8 @@ public class GameEngine implements KeyListener, GameReporter{
 	}
 
 	private void generateBossLaser2(int x4, int y4, int x5){
-		BossLaser bosslaser4 = new BossLaser(x4,y4,1,1000,4);
-		BossLaser bosslaser5 = new BossLaser(x5,y4,1,1000,5);
+		BossLaser bosslaser4 = new BossLaser(x4,y4,1,500,4);
+		BossLaser bosslaser5 = new BossLaser(x5,y4,1,500,5);
 		gp.sprites.add(bosslaser4);
 		gp.sprites.add(bosslaser5);
 		bosslaser.add(bosslaser4);
@@ -238,26 +238,22 @@ public class GameEngine implements KeyListener, GameReporter{
 
 		for(Boss bossa: bossS){
 			if(bossa.getShoot2()){
-				if(bossa.getPattern() == 0 || bossa.getPattern() == 1)
 					generateBossRedLine(bossa.getCenterx(), bossa.getCentery(), bossa.getCenterx2() - 5, bossa.getCenterx3());
 			}
 			if(bossa.getTime() >= 20 ){ 
-				if(bossa.getPattern() == 0 || bossa.getPattern() == 1){
-					removeRedLine();
 					generateBossLaser(bossa.getCenterx(),bossa.getCentery(), bossa.getCenterx2() - 5, bossa.getCenterx3());
-					noRedLine = true;
-					if(bossa.getPattern() == 1){
+					if(bossa.getPattern() == 1|| bossa.getPattern() ==2)
 						if(noRedLine2) generateBossRedLine2(bossa.getCenterx4(), bossa.getCentery4(), bossa.getCenterx5());
-					}
-				}
+					
+			}
+			if(bossa.getPattern() == 1){
+				if(bossa.getTime2() >= 35)
+					generateBossLaser2(bossa.getCenterx4() + 5,bossa.getCentery4(),bossa.getCenterx5());
 			}
 			
-			if(bossa.getPattern() == 1){
-				 if(bossa.getTime2() >= 25){
-					removeRedLine2();
-					noRedLine2 = true;
+			else if(bossa.getPattern() == 2){
+				 if(bossa.getTime2() >= 25)
 					generateBossLaser2(bossa.getCenterx4() + 5,bossa.getCentery4(),bossa.getCenterx5());
-				}
 			}
 		}
 
@@ -461,10 +457,8 @@ public class GameEngine implements KeyListener, GameReporter{
 			difficulty = 0.055;
 		if(gameMode == 3)
 			difficulty = 0.07;
-		die = false;
-		hasBoss = false;
-		noRedLine = true;
-		noRedLine2 = true;
+		hasBoss = die = false;
+		noRedLine2 = noRedLine = true;
 		Rectangle2D.Double br;
 		Rectangle2D.Double er;
 		Rectangle2D.Double esr;
@@ -507,15 +501,12 @@ public class GameEngine implements KeyListener, GameReporter{
 			removeRedLine();
 			removeRedLine2();
 		}
+		kill = Enemy = bossLv = bossHp = 0;
 		score = 0;
-		v.resetPosition();
-		bossHp = 0;
-		bossLv = 0;
 		maxEnemy = 7;
-		Enemy = 0;
+		v.resetPosition();
 		v.setMaxHp(50);
 		v.setFullHp();
-		kill = 0;
 	}
 
 	public void die(){
@@ -565,7 +556,6 @@ public class GameEngine implements KeyListener, GameReporter{
 	void controlVehicle(KeyEvent e) {
 		switch (e.getKeyCode()) {
 		case KeyEvent.VK_LEFT:
-
 			controll[0] = true;
 			break;
 		case KeyEvent.VK_RIGHT:
@@ -607,6 +597,10 @@ public class GameEngine implements KeyListener, GameReporter{
 				pause();
 			 }
 			 break;
+		/*case KeyEvent.VK_S:
+			if(pauseStatus) save();
+			System.exit(0);
+			break;*/
 		case KeyEvent.VK_B:
 			if(!difficultStatus) {
 			if(!hasBoss) generateBoss(); 
@@ -635,6 +629,96 @@ public class GameEngine implements KeyListener, GameReporter{
 			break;
 		}
 	}
+
+	/*public void save(){
+		try{
+			ObjectOutputStream save = new ObjectOutputStream(new FileOutputStream("save.txt"));
+			save.writeObject(bullets);
+			save.writeObject(enemies);
+			save.writeObject(enemiespaceships);
+			save.writeObject(bossS);
+			save.writeObject(bosslaser);
+			save.writeObject(redline1);
+			save.writeObject(redline2);
+			save.writeObject(redline3);
+			save.writeObject(redline4);
+			save.writeObject(redline5);
+			save.writeObject(titleStatus);
+			save.writeObject(difficultStatus);
+			save.writeObject(pauseStatus);
+			save.writeObject(lvUp);
+			save.writeObject(cursor);
+			save.writeObject(cursor2);
+			save.writeObject(v);
+			save.writeObject(timer);
+			save.writeObject(score);
+			save.writeObject(difficulty);
+			save.writeObject(ms10);
+			save.writeObject(random);
+			save.writeObject(readyTofire);
+			save.writeObject(maxEnemy);
+			save.writeObject(Enemy);
+			save.writeObject(kill);
+			save.writeObject(limitMaxEnemy);
+			save.writeObject(die);
+			save.writeObject(gameMode);
+			save.writeObject(hasBoss);
+			save.writeObject(bossHp);
+			save.writeObject(bossLv);
+			save.writeObject(stopCheck);
+			save.writeObject(noRedLine);
+			save.writeObject(noRedLine2);
+			save.close();
+		}
+		catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+
+	public void load(){
+		try{
+			ObjectInputStream save = new ObjectInputStream(new FileInputStream("save.txt")); 
+			bullets = (ArrayList<Bullet>) save.readObject();
+			enemies = (ArrayList<Enemy>) save.readObject();
+			enemiespaceships = (ArrayList<EnemySpaceShip>) save.readObject();
+			bossS = (ArrayList<Boss>) save.readObject();
+			bosslaser = (ArrayList<BossLaser>) save.readObject();
+			redline1 = (RedLine) save.readObject();
+			redline2 = (RedLine) save.readObject();
+			redline3 = (RedLine) save.readObject();
+			redline4 = (RedLine) save.readObject();
+			redline5 = (RedLine) save.readObject();
+			titleStatus = (Boolean) save.readObject();
+			difficultStatus = (Boolean) save.readObject();
+			pauseStatus = (Boolean) save.readObject();
+			lvUp = (Boolean) save.readObject();
+			cursor = (Integer) save.readObject();
+			cursor2 = (Integer) save.readObject();
+			v = (PlayerSpaceShip) save.readObject();
+			timer = (Timer) save.readObject();
+			score = (Integer) save.readObject();
+			difficulty = (Integer) save.readObject();
+			ms10 = (Integer) save.readObject();
+			random = (Integer) save.readObject();
+			readyTofire = (Boolean) save.readObject();
+			maxEnemy = (Integer) save.readObject();
+			Enemy = (Integer) save.readObject();
+			kill = (Integer) save.readObject();
+			limitMaxEnemy = (Boolean) save.readObject();
+			die = (Boolean) save.readObject();
+			gameMode = (Integer) save.readObject();
+			hasBoss = (Boolean) save.readObject();
+			bossHp = (Integer) save.readObject();
+			bossLv = (Integer) save.readObject();
+			stopCheck = (Boolean) save.readObject();
+			noRedLine = (Boolean) save.readObject();
+			noRedLine2 = (Boolean) save.readObject();
+			save.close();
+		}
+		catch(Exception e){
+			 e.printStackTrace();
+		}
+	}*/
 
 	public long getScore(){
 		return score;

@@ -51,8 +51,10 @@ public class Boss extends SpaceShip{
 		int i = 0;
 		int ran = random.nextInt(100);
 		int ran2 = random.nextInt(100);
-		if(lv > 2){
+		if(lv == 2)
 			pattern = 1;
+		if(lv > 2){
+			pattern = 2;
 		}
 		if(num == 0){
 			if(ran >= 50){
@@ -83,7 +85,7 @@ public class Boss extends SpaceShip{
 		}
 		else shoot = false;
 		if(timestart2) time2++;
-		if(time2 >= 30){
+		if(time2 >= 40){
 			time2 = 0;
 			timestart2 = false;;
 		}

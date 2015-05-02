@@ -31,9 +31,6 @@ public abstract class SpaceShip extends Sprite{
 		return centery;
 	}
 
-	@Override
-	public abstract void draw(Graphics2D g);
-
 	public int getHp(){
 		return hp;
 	}

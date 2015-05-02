@@ -4,27 +4,12 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 
 public class PlayerSpaceShip extends SpaceShip{
-	private int centerx;
-	private int centery;
 	int step = 1;
 
 	public PlayerSpaceShip(int x, int y, int width, int height) {
 		super(x, y, width, height, 50, 50);
 		centerx = x + (width/2) - 1;
 		centery = y + (height/2) - 10;
-	}
-	
-	public void changeCenter(int x,int y){
-		centerx = x + centerx;
-		centery = y + centery;
-	}
-
-	public int getCenterx(){
-		return centerx;
-	}
-
-	public int getCentery(){
-		return centery;
 	}
 
 	@Override
